@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPrep.AI - Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .option-container {
+            transition: all 0.2s ease;
+        }
+        .option-container:hover {
+            transform: translateX(5px);
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        .custom-radio {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8b5cf6;
+            border-radius: 50%;
+            outline: none;
+            position: relative;
+        }
+        .custom-radio:checked {
+            background-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+        .custom-radio:checked::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e0e7ff;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #8b5cf6, #6366f1);
+            transition: width 0.3s ease;
+        }
+        .next-btn {
+            transition: all 0.3s ease;
+        }
+        .next-btn:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-indigo-900 via-indigo-800 to-transparent min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl text-white font-bold mb-2">SmartPrep<span class="text-indigo-300">.AI</span></h1>
+        </div>
+        
+        <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden p-8">
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="text-sm text-gray-600 font-medium">
+                        <i class="fas fa-question-circle mr-2 text-indigo-600"></i>Question {{ question_number }} of {{ total_questions }}
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <span class="font-bold text-indigo-600">{{ question_number }}</span>/{{ total_questions }}
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (question_number / total_questions) * 100 }}%"></div>
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-800 leading-relaxed">{{ question.question }}</h2>
+            </div>
+            
+            <form action="{{ url_for('answer_2') }}" method="post" class="space-y-3">
+                {% for option in ['A', 'B', 'C', 'D'] %}
+                <div class="option-container p-3 rounded-lg border border-gray-200 hover:border-indigo-300 cursor-pointer">
+                    <div class="flex items-center">
+                        <input type="radio" id="option{{ option }}" name="answer" value="{{ question['option' + option] }}" required
+                            class="custom-radio">
+                        <label for="option{{ option }}" class="ml-3 block text-base text-gray-700 w-full cursor-pointer">
+                            <span class="font-medium text-indigo-600">{{ option }}.</span> {{ question['option' + option] }}
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <button type="submit"
+                    class="mt-8 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 next-btn">
+                    <span>Next Question</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-500 text-xs">Select the best answer based on the content</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

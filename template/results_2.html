@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+    <!-- Header section with gradient background -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+        <h2 class="text-2xl font-bold text-center">Quiz Results</h2>
+    </div>
+    
+    <div class="p-8">
+        <!-- Score display with animated ring -->
+        <div class="flex justify-center mb-10">
+            <div class="relative w-48 h-48 flex items-center justify-center rounded-full bg-gray-100">
+                <svg class="absolute" width="200" height="200" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#e6e6e6" stroke-width="12"/>
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#4f46e5" stroke-width="12" 
+                          stroke-dasharray="502.4" stroke-dashoffset="{{ 502.4 - (percentage * 5.024) }}"
+                          transform="rotate(-90 100 100)"/>
+                </svg>
+                <div class="text-center">
+                    <p class="text-4xl font-bold text-indigo-600">{{ percentage|round(1) }}%</p>
+                    <p class="text-gray-600 text-sm">{{ correct_count }} / {{ total_questions }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart section with card styling -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Performance by Category</h3>
+            <div class="flex justify-center">
+                <canvas id="barChart" width="650" height="400"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                var ctx = document.getElementById("barChart").getContext("2d");
+                var colorPalette = [
+                    'rgba(79, 70, 229, 0.7)', // indigo
+                    'rgba(139, 92, 246, 0.7)', // purple
+                    'rgba(59, 130, 246, 0.7)', // blue
+                    'rgba(16, 185, 129, 0.7)', // green
+                    'rgba(245, 158, 11, 0.7)', // amber
+                    'rgba(239, 68, 68, 0.7)'   // red
+                ];
+                var borderColorPalette = [
+                    'rgba(79, 70, 229, 1)', 
+                    'rgba(139, 92, 246, 1)', 
+                    'rgba(59, 130, 246, 1)', 
+                    'rgba(16, 185, 129, 1)', 
+                    'rgba(245, 158, 11, 1)', 
+                    'rgba(239, 68, 68, 1)'
+                ];
+                
+                var data = {
+                    labels: {{ labels | tojson }},
+                    datasets: [
+                        {% for category, values in data.items() %}
+                        {
+                            label: "{{ category }}",
+                            data: {{ values | tojson }},
+                            backgroundColor: colorPalette[{{ loop.index0 % 6 }}],
+                            borderColor: borderColorPalette[{{ loop.index0 % 6 }}],
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {% endfor %}
+                    ]
+                };
+
+                var barChart = new Chart(ctx, {
+                    type: "bar",
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: true,
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+
+        <!-- Wrong answers section with improved styling -->
+        {% if wrong_answers %}
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Incorrect Answers</h3>
+            <div class="space-y-4">
+                {% for answer in wrong_answers %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                    <p class="font-medium text-gray-800 mb-2">Q: {{ answer.question }}</p>
+                    <div class="flex flex-col space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-800 mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </span>
+                            <span class="text-red-600">Your answer: {{ answer.your_answer }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </span>
+                            <span class="text-green-600">Correct answer: {{ answer.correct_answer }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action buttons with improved layout and icons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+            <a href="{{ url_for('choice') }}" class="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition duration-150 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Take Another Quiz
+            </a>
+            <a href="{{ url_for('analyze_weak_areas') }}" class="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition duration-150 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                </svg>
+                Analyze Weak Areas
+            </a>
+            <a href="{{ url_for('generate_strategy') }}" class="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition duration-150 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Generate Strategy
+            </a>
+            <a href="{{ url_for('generate_strengths') }}" class="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500  to-green-600 hover:from-green-600 hover:to-green-700 transition duration-150 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Analyze Strong Areas
+            </a>
+            <a href="{{ url_for('graph') }}" class="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 transition duration-150 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Past Analysis
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+`
