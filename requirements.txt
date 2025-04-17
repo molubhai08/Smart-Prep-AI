@@ -1,0 +1,14 @@
+Flask
+Werkzeug
+plotly
+crewai
+mysql-connector-python
+langchain
+langchain-groq
+langchain-community
+langchain-ollama
+langchain-text-splitters
+langchain-core
+faiss-cpu
+pandas
+PyPDF2
