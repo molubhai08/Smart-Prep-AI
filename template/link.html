@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPrep.AI - Upload YouTube Link</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 25px rgba(129, 140, 248, 0.6);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-indigo-900 via-indigo-800 to-transparent min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col items-center space-y-6">
+            <div class="text-center mb-6">
+                <h1 class="text-4xl text-white font-bold mb-2">SmartPrep<span class="text-indigo-300">.AI</span></h1>
+                <p class="text-indigo-200 text-lg">Transform any video into a comprehensive quiz</p>
+            </div>
+            
+            <div class="w-full max-w-md bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-8 shadow-2xl card-glow">
+                <h2 class="text-2xl text-white font-semibold mb-6 flex items-center">
+                    <i class="fab fa-youtube text-red-500 mr-3 text-3xl"></i>
+                    Enter YouTube Link
+                </h2>
+                
+                <form action="{{ url_for('process_upload_link') }}" method="post" class="w-full">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-link text-indigo-300"></i>
+                        </div>
+                        <input type="text" name="youtube_url" placeholder="Paste YouTube URL here..." required
+                            class="w-full pl-10 p-4 bg-white bg-opacity-20 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-white placeholder-indigo-200">
+                    </div>
+                    
+                    <button type="submit" class="mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition duration-300 flex items-center justify-center font-medium pulse">
+                        <i class="fas fa-magic mr-2"></i> Generate Quiz
+                    </button>
+                </form>
+                
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="mt-6 w-full bg-red-500 bg-opacity-80 text-white p-4 rounded-lg border border-red-600">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-circle mt-1 mr-3"></i>
+                                <div>
+                                    {% for message in messages %}
+                                        <p class="mb-1">{{ message }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            <div class="text-indigo-200 mt-6 text-center max-w-md">
+                <p class="text-sm">Simply paste a YouTube URL above to automatically generate multiple-choice questions based on the video content.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
